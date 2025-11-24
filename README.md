@@ -16,7 +16,7 @@ Add the following dependency to your project:
 
 ```clojure
 ;; deps.edn
-{:deps {io.github.clojure/core.async.flow-monitor {:git/tag "v0.1.1" :git/sha "61e8d31"}}}
+{:deps {io.github.clojure/core.async.flow-monitor {:git/tag "v0.1.3" :git/sha "5e09ed9"}}}
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ Add the following dependency to your project:
 ### Starting a Monitor Server
 
 ```clojure
-(:require 
+(:require
   [clojure.core.async.flow-monitor :as monitor]
   [clojure.core.async.flow :as flow])
 
@@ -93,7 +93,7 @@ You can run multiple monitoring servers simultaneously to monitor different flow
 
 It is common for the state to contain credentials and other sensitive information not intended to be displayed in the monitor. Filter predicates can optionally be provided when starting the monitor to filter the state data of flow procs.
 
-``` clojure 
+``` clojure
 ;; Create a flow
 (def my-flow (flow/create-flow ...))
 
@@ -101,7 +101,7 @@ It is common for the state to contain credentials and other sensitive informatio
 ;;; In this example
 ;;; The :categorize proc will have the :salary value removed
 ;;; and :db-pass will be removed from all procs other than :categorize
-(def server-state (monitor/start-server {:flow my-flow 
+(def server-state (monitor/start-server {:flow my-flow
                                          :state-filters {:categorize (fn [[k v]] (not= :salary k))
                                                          :default (fn [[k v]] (not= :db-pass k))}}))
 ```
@@ -111,37 +111,37 @@ It is common for the state to contain credentials and other sensitive informatio
 
 It is valid to create a cyclical flow. The monitor displays procs without a `[to-pid inid]` at the top as roots. A circular flow will need to specify the intended root explicitly. A vector of :pid keywords can optionally be provided when starting the monitor to designate the root procs.
 
-``` clojure 
+``` clojure
 
 (def flow-config {:procs ...
                   :conns [[[:a :out] [:b :in]]
                           [[:b :out] [:a :in]]]})
-                          
+
 ;; Create a flow
 (def my-flow (flow/create-flow flow-config))
 
 ;; Start the monitoring server specifying the root proc(s)
 (def server-state (monitor/start-server {:flow my-flow
                                          ;; Multiple roots can be provided if desired
-                                         :root [:a]})) 
-                                         
+                                         :root [:a]}))
+
 ;; Inline static flow graphs also require the root to be specified for circular flows
-(static/graph flow-config [:a])                                     
+(static/graph flow-config [:a])
 ```
 
 ## Static Flow Graph
 
 Both [Cursive](https://cursive-ide.com/blog/cursive-2025.1.html) and [Calva](https://calva.io/flares/) support displaying HTML in the editor. A static graph can be generated from your flow-config and displayed in either of those editor environments with the following:
 
-``` clojure 
-(:require 
+``` clojure
+(:require
   [clojure.core.async.flow-static :refer [graph]]
   [clojure.core.async.flow :as flow])
 
 ;; Create a flow
-(def flow-config {:procs ... 
+(def flow-config {:procs ...
                   :conns ...})
-                  
+
 (graph flow-config) ; Takes a config not what is returned from create-flow
 
 (def my-flow (flow/create-flow flow-config))
