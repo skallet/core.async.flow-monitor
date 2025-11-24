@@ -1,14 +1,14 @@
 {
   "name": "flow-monitor-ui",
   "version": "0.1.0",
-  "main": "resources/public/assets/js/compiled/app.js",
+  "main": "resources/clojure/core/async/flow_monitor/public/assets/js/compiled/app.js",
   "license": "EPL1",
   "private": true,
   "devDependencies": {
     "sass": "^1.71.1"
   },
   "scripts": {
-    "css": "sass site.scss ../../../resources/public/assets/css/site.css",
+    "css": "sass site.scss ../../../resources/clojure/core/async/flow_monitor/public/assets/css/site.css",
     "watch:css": "yarn css -w"
   }
 }

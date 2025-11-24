@@ -101,7 +101,7 @@
      :on-ping nil}))
 
 (defn frontend-handler [_]
-  (-> (response/resource-response "index.html" {:root "public"})
+  (-> (response/resource-response "index.html" {:root "clojure/core/async/flow_monitor/public"})
       (response/content-type "text/html")))
 
 (defn app [state]
@@ -112,7 +112,7 @@
          ["/app/*" {:get frontend-handler}]]
         {:data {:muuntaja m/instance}})
       (ring/routes
-        (ring/create-resource-handler {:path "/" :root "public"})
+        (ring/create-resource-handler {:path "/" :root "clojure/core/async/flow_monitor/public"})
         (ring/create-default-handler)))
     (wrap-content-type)
     (wrap-not-modified)))

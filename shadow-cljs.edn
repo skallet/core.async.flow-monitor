@@ -6,22 +6,21 @@
  :nrepl {:port 9001
          :middleware []}
  :builds {:app {:target :browser
-                :js-options {:js-provider :shadow}
-                :output-dir "resources/public/assets/js/compiled"
-                :asset-path "/js/compiled"
-                :modules {:main {:init-fn clojurescript.flow-monitor-ui.core/main}}
-                :compiler-options {:infer-externs :auto}
-                :dev {:closure-defines {goog.DEBUG true}}
-                :release {:closure-defines {goog.DEBUG false}}
-                :devtools {:http-root "resources/public"
-                           :preloads []
-                           :after-load clojurescript.flow-monitor-ui.core/on-reload
-                           :http-port 9876}}
-          :test     {:target    :browser-test
-                     :test-dir  "resources/public/assets/js/test"
-                     :ns-regexp "-test$"
-                     :closure-defines {flow-monitor-ui/alert-timeout-ms 10}
-                     :devtools  {:http-port 8021
-                                 :http-root "resources/public/assets/js/test"}}}}
-; 
+                 :js-options {:js-provider :shadow}
+                 :output-dir "resources/clojure/core/async/flow_monitor/public/assets/js/compiled"
+                 :asset-path "/js/compiled"
+                 :modules {:main {:init-fn clojurescript.flow-monitor-ui.core/main}}
+                 :compiler-options {:infer-externs :auto}
+                 :dev {:closure-defines {goog.DEBUG true}}
+                 :release {:closure-defines {goog.DEBUG false}}
+                 :devtools {:http-root "resources/clojure/core/async/flow_monitor/public"
+                            :preloads []
+                            :after-load clojurescript.flow-monitor-ui.core/on-reload
+                            :http-port 9876}}
+           :test     {:target    :browser-test
+                      :test-dir  "resources/clojure/core/async/flow_monitor/public/assets/js/test"
+                      :ns-regexp "-test$"
+                      :closure-defines {flow-monitor-ui/alert-timeout-ms 10}
+                      :devtools  {:http-port 8021
+                                  :http-root "resources/clojure/core/async/flow_monitor/public/assets/js/test"}}}}; 
 ; 

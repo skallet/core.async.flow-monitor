@@ -87,8 +87,7 @@
       [:html
        [:head
         [:title "Flow Chart"]
-        [:script (h/raw (slurp (io/resource "public/assets/js/vendor/leader-line.min.js")))]
-        [:div#flow-data {:style "display: none;" :data-connections (h/raw (connections-to-json conns))}]
+         [:script (h/raw (slurp (io/resource "clojure/core/async/flow_monitor/public/assets/js/vendor/leader-line.min.js")))]        [:div#flow-data {:style "display: none;" :data-connections (h/raw (connections-to-json conns))}]
         [:script (h/raw "
 window.addEventListener('load', function() {
   const dataEl = document.getElementById('flow-data');
