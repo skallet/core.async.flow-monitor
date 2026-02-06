@@ -1,65 +1,15 @@
 (ns clojurescript.flow-monitor-ui.components.nav
   (:require
-    [clojurescript.flow-monitor-ui.global :refer [proc-card-state remove-arrows draw chan-representation]]
     [clojurescript.flow-monitor-ui.components.log-modal :as log-modal]
+    [clojurescript.flow-monitor-ui.graph :as graph]
     [clojurescript.flow-monitor-ui.utils.helpers :refer [>dis <sub]]
     [reagent.core :as r]))
-
-
-(defn set-proc-card-expansion-state [expanded?]
-  (let [collapsed-state (reduce-kv (fn [res k _]
-                                     (assoc res k expanded?))
-                                   {} @proc-card-state)]
-    (reset! proc-card-state collapsed-state)
-    (remove-arrows)
-    (js/setTimeout (fn []
-                     (draw)) 600)))
-
-(defn collapse-elements-with-delay [delay]
-  (let [elements (array-seq (.getElementsByClassName js/document "collapsible-meter"))]
-    (doseq [element elements]
-      (let [height (.-scrollHeight element)]
-        (set! (.. element -style -height) (str height "px"))
-        (.. element -offsetHeight)
-        (.add (.-classList element) "collapsing")
-        (js/setTimeout
-          (fn []
-            (set! (.. element -style -height) "0px"))
-          delay)))))
-
-(defn expand-all-meters []
-  (let [elements (array-seq (.getElementsByClassName js/document "collapsible-meter"))]
-    (doseq [element elements]
-      (set! (.. element -style -height) "0px")
-      (.. element -offsetHeight)
-      (.add (.-classList element) "collapsing")
-      (set! (.. element -style -height) (str (.-scrollHeight element) "px"))
-      (js/setTimeout
-        (fn []
-          (.remove (.-classList element) "collapsing")
-          (set! (.. element -style -height) "auto"))
-        300))))
-
-(defn set-chan-representation
-  "Valid options :meter :line"
-  [display-type]
-  (remove-arrows)
-  (reset! chan-representation display-type)
-  (if (= :line display-type)
-    (collapse-elements-with-delay 500)
-    (expand-all-meters))
-  (js/setTimeout (fn []
-                     (draw)) 600))
 
 (defn settings-bar []
   (let [menu-open? (r/atom false)]
     (fn []
-      (let [all-expanded? (reduce-kv (fn [res _ v]
-                                       (cond
-                                         (false? res) false
-                                         (false? v) false
-                                         :else true))
-                                     true @proc-card-state)]
+      (let [direction @graph/rank-dir
+            show-labels? @graph/show-edge-labels?]
         [:div.settings-icons-container
          [:div.log-icon-wrapper
           [:button.log-icon
@@ -75,26 +25,26 @@
            [:h3 "Settings"]
            [:button.close-settings {:on-click #(reset! menu-open? false)} ""]]
           [:div.settings-content
-           [:h4 "Display"]
+           [:h4 "Graph Layout"]
            [:div.setting-option
-            [:label "Proc Cards"]
+            [:label "Layout Direction"]
             [:div.pill-toggle
              [:button.pill-btn.pill-left
-              {:class (when-not all-expanded? "active")
-               :on-click (fn [e] (set-proc-card-expansion-state false))}
-              "Collapse All"]
+              {:class (when (= :TB direction) "active")
+               :on-click (fn [e] (reset! graph/rank-dir :TB))}
+              "Top-Bottom"]
              [:button.pill-btn.pill-right
-              {:class (when all-expanded? "active")
-               :on-click (fn [e] (set-proc-card-expansion-state true))}
-              "Expand All"]]]
+              {:class (when (= :LR direction) "active")
+               :on-click (fn [e] (reset! graph/rank-dir :LR))}
+              "Left-Right"]]]
            [:div.setting-option
-            [:label "Chan Representation"]
+            [:label "Edge Labels"]
             [:div.pill-toggle
              [:button.pill-btn.pill-left
-              {:class (when (= :line @chan-representation) "active")
-               :on-click (fn [e] (set-chan-representation :line))}
-              "Line"]
+              {:class (when show-labels? "active")
+               :on-click (fn [e] (reset! graph/show-edge-labels? true))}
+              "Show"]
              [:button.pill-btn.pill-right
-              {:class (when (= :meter @chan-representation) "active")
-               :on-click (fn [e] (set-chan-representation :meter))}
-              "Meter"]]]]]]))))
+              {:class (when-not show-labels? "active")
+               :on-click (fn [e] (reset! graph/show-edge-labels? false))}
+              "Hide"]]]]]]))))

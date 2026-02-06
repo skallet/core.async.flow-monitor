@@ -1216,7 +1216,6 @@ body {
 body {
   height: 100vh;
   width: 100vw;
-  margin-top: 100px;
   background-color: #CBD2D9;
 }
 
@@ -1959,6 +1958,97 @@ body.modal-open {
   display: flex;
   flex-direction: column;
   position: relative;
+}
+
+/* == Flow Graph ============================================================ */
+
+.flow-graph-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #0f0f17;
+  position: relative;
+}
+
+.flow-graph-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #1a1a2e;
+  border-bottom: 1px solid #2d2d44;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.flow-graph-search {
+  flex: 1;
+  max-width: 280px;
+}
+.flow-graph-search input {
+  width: 100%;
+  padding: 6px 10px;
+  background: #0f0f17;
+  border: 1px solid #2d2d44;
+  border-radius: 4px;
+  color: #e5e7eb;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+}
+.flow-graph-search input::placeholder {
+  color: #6b7280;
+}
+.flow-graph-search input:focus {
+  border-color: #6c8cff;
+}
+
+.flow-graph-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.ctrl-btn {
+  padding: 5px 10px;
+  background: #0f0f17;
+  border: 1px solid #2d2d44;
+  border-radius: 4px;
+  color: #9ca3af;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+.ctrl-btn:hover {
+  background: #2d2d44;
+  color: #e5e7eb;
+}
+.ctrl-btn.active {
+  background: #2d3f7a;
+  border-color: #6c8cff;
+  color: #e5e7eb;
+}
+.ctrl-btn.error-btn {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.flow-graph-detail-panel {
+  width: 280px;
+  min-width: 280px;
+  background: #1a1a2e;
+  border-left: 1px solid #2d2d44;
+  padding: 16px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.detail-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
 /*# sourceMappingURL=site.css.map */
