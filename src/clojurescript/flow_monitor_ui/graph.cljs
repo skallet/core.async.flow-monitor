@@ -19,6 +19,7 @@
 (def search-term (r/atom ""))
 (def rank-dir (r/atom :TB))
 (def show-edge-labels? (r/atom true))
+(def show-buffer-info? (r/atom true))
 (def selected-node (r/atom nil))
 
 ;; ============================================================================
@@ -92,6 +93,31 @@
       label-text]]))
 
 ;; ============================================================================
+;; Edge buffer label
+;; ============================================================================
+
+(defn buffer-fill-color [buf-count buf-capacity]
+  (when (and buf-count buf-capacity (pos? buf-capacity))
+    (let [ratio (/ buf-count buf-capacity)]
+      (cond
+        (>= ratio 0.9) "#ef4444"
+        (>= ratio 0.6) "#f59e0b"
+        :else          "#22c55e"))))
+
+(defn edge-buffer-label [mid-x mid-y buf-count buf-capacity]
+  (when (and buf-capacity (pos? buf-capacity))
+    (let [label-text (str buf-count "/" buf-capacity)
+          fill-color (or (buffer-fill-color buf-count buf-capacity) "#9ca3af")]
+      [:g {:transform (str "translate(" mid-x "," (+ mid-y 18) ")")}
+       [:rect {:x -30 :y -9 :width 60 :height 18
+               :rx 9 :fill "#0f0f17" :opacity 0.9
+               :stroke fill-color :stroke-width 1}]
+       [:text {:x 0 :y 4 :text-anchor "middle"
+               :fill fill-color :font-size 11
+               :font-weight "600" :font-family "monospace"}
+        label-text]])))
+
+;; ============================================================================
 ;; Node component
 ;; ============================================================================
 
@@ -151,14 +177,20 @@
 ;; ============================================================================
 
 (defn build-graph-data
-  "Extract nodes and edges from flow connection data."
-  [conns]
+  "Extract nodes and edges from flow connection data, enriched with buffer info from ping."
+  [conns ping]
   (let [node-set (reduce (fn [s [[from _] [to _]]]
                            (-> s (conj from) (conj to)))
                          #{} conns)
         edges (mapv (fn [[[from from-port] [to to-port]]]
-                      {:from from :to to
-                       :from-port from-port :to-port to-port})
+                      (let [buf (-> (get ping to)
+                                    :clojure.core.async.flow/ins
+                                    (get to-port)
+                                    :buffer)]
+                        {:from from :to to
+                         :from-port from-port :to-port to-port
+                         :buf-count (:count buf)
+                         :buf-capacity (:capacity buf)}))
                     conns)]
     {:nodes (vec node-set)
      :edges edges}))
@@ -270,12 +302,13 @@
             direction @rank-dir
             term @search-term
             show-labels? @show-edge-labels?
+            show-buffer? @show-buffer-info?
             sel @selected-node]
         (if (empty? conns)
           [:div.flow-graph-container
            [:p {:style {:color "#9ca3af" :text-align "center" :margin-top "100px"}}
             "No flow data available."]]
-          (let [{:keys [nodes edges]} (build-graph-data conns)
+          (let [{:keys [nodes edges]} (build-graph-data conns ping)
                 positions (layout/layout-graph
                             nodes edges
                             {:direction direction
@@ -304,6 +337,8 @@
                          :on-click #(reset! rank-dir :LR)} "LR"]
                [:button {:class (str "ctrl-btn" (when show-labels? " active"))
                          :on-click #(swap! show-edge-labels? not)} "Labels"]
+               [:button {:class (str "ctrl-btn" (when show-buffer? " active"))
+                         :on-click #(swap! show-buffer-info? not)} "Buffer"]
                [:button.ctrl-btn {:on-click zoom-in!} "+"]
                [:button.ctrl-btn {:on-click zoom-out!} "-"]
                [:button.ctrl-btn {:on-click #(reset-view! positions node-w node-h)} "R"]
@@ -329,7 +364,7 @@
               ;; Edges
               [:g.edges
                (doall
-                 (for [{:keys [from to from-port to-port]} edges
+                 (for [{:keys [from to from-port to-port buf-count buf-capacity]} edges
                        :let [from-pos (get positions from)
                              to-pos (get positions to)]
                        :when (and from-pos to-pos)]
@@ -342,11 +377,15 @@
                             :stroke "#4b5563"
                             :stroke-width 2
                             :marker-end "url(#arrowhead)"}]
-                    (when show-labels?
+                    (when (or show-labels? show-buffer?)
                       (let [mid (edge-midpoint (:x from-pos) (:y from-pos)
                                                (:x to-pos) (:y to-pos)
                                                direction node-w node-h)]
-                        [edge-label-component (:x mid) (:y mid) from-port to-port]))]))]
+                        [:<>
+                         (when show-labels?
+                           [edge-label-component (:x mid) (:y mid) from-port to-port])
+                         (when show-buffer?
+                           [edge-buffer-label (:x mid) (:y mid) buf-count buf-capacity])]))]))]
               ;; Nodes
               [:g.nodes
                (doall

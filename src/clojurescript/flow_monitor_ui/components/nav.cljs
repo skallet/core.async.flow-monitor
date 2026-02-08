@@ -9,7 +9,8 @@
   (let [menu-open? (r/atom false)]
     (fn []
       (let [direction @graph/rank-dir
-            show-labels? @graph/show-edge-labels?]
+            show-labels? @graph/show-edge-labels?
+            show-buffer? @graph/show-buffer-info?]
         [:div.settings-icons-container
          [:div.log-icon-wrapper
           [:button.log-icon
@@ -47,4 +48,15 @@
              [:button.pill-btn.pill-right
               {:class (when-not show-labels? "active")
                :on-click (fn [e] (reset! graph/show-edge-labels? false))}
+              "Hide"]]]
+           [:div.setting-option
+            [:label "Buffer Info"]
+            [:div.pill-toggle
+             [:button.pill-btn.pill-left
+              {:class (when show-buffer? "active")
+               :on-click (fn [e] (reset! graph/show-buffer-info? true))}
+              "Show"]
+             [:button.pill-btn.pill-right
+              {:class (when-not show-buffer? "active")
+               :on-click (fn [e] (reset! graph/show-buffer-info? false))}
               "Hide"]]]]]]))))
